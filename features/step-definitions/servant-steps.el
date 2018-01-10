@@ -28,7 +28,10 @@
 
 (Then "^I should see command error:$"
   (lambda (output)
-    (should (s-contains? output servant-test/stderr))))
+    (should (s-contains? (if (fboundp 'format-message)
+                             (format-message output)
+                           output)
+                         servant-test/stderr))))
 
 (Then "^the directory \"\\([^\"]+\\)\" should exist$"
   (lambda (directory)
