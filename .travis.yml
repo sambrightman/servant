@@ -1,9 +1,9 @@
 language: generic
 sudo: false
-addons:
-  apt:
-    packages:
-      - gnutls-bin
+# addons:
+#   apt:
+#     packages:
+#       - gnutls-bin
 before_install:
   - source <(curl -fsSkL https://gist.githubusercontent.com/rejeep/ebcd57c3af83b049833b/raw)
   - evm install $EVM_EMACS --use --skip
