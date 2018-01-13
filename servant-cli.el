@@ -39,9 +39,6 @@
 (require 'commander)
 (require 'ansi)
 (require 'shut-up)
-(require 'web-server)
-(require 'eieio)
-(require 'cl)
 
 (shut-up-silence-emacs)
 

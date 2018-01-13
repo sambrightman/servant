@@ -44,6 +44,9 @@
 (require 'f)
 (require 'dash)
 (require 'epl)
+(require 'web-server)
+(require 'eieio)
+(require 'cl)
 
 
 ;;;; Package Index functions
