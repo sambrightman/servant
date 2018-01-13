@@ -8,7 +8,9 @@
               (s-split " " args))
              (bin-servant
               (f-join servant-test/root-path "bin" "servant"))
-             (exit-code (apply 'call-process (append (list bin-servant nil t nil) args))))
+             (foo (message "running servant"))
+             (exit-code (apply 'call-process (append (list bin-servant nil t nil) args)))
+             (bar (message "ran servant")))
         (let ((output (ansi-color-filter-apply (buffer-string))))
           (if (= exit-code 0)
               (setq servant-test/stdout output)
