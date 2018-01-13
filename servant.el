@@ -91,21 +91,38 @@ packages, or nil, if FILE-NAME is not a package."
         (print-length nil))
     (concat "\n" (prin1-to-string (servant-create-index directory)) "\n")))
 
+(defun async-ready (future)
+  "Query a FUTURE to see if it is ready.
+I.e., if no blocking
+would result from a call to `async-get' on that FUTURE."
+  (and (memq (process-status future) '(exit signal))
+       (let ((buf (process-buffer future)))
+         (if (buffer-live-p buf)
+             (with-current-buffer buf
+               async-callback-value-set)
+             t))))
+
+(defun async-wait (future)
+  "Wait for FUTURE to become ready."
+  (while (not (async-ready future))
+    (sleep-for 0.05)))
+
 (defun servant-start ()
   "Start server."
   (unless (f-dir? (servant-path))
     (error (ansi-red "Servant not initialized, run `servant init`.")))
-  (let ((docroot (servant-path)))
-    (ws-start
-     (lambda (request)
-       (with-slots (process headers) request
-         (let ((path (substring (cdr (assoc :GET headers)) 1)))
-           (if (ws-in-directory-p docroot path)
-               (if (f-dir? path)
-                   (ws-send-directory-list process (f-expand path docroot) "^[^\.]")
-                 (ws-send-file process (f-expand path docroot)))
-             (ws-send-404 process)))))
-     servant-port))
+  (let ((docroot (servant-path))
+        (server (ws-start
+                 (lambda (request)
+                   (with-slots (process headers) request
+                     (let ((path (substring (cdr (assoc :GET headers)) 1)))
+                       (if (ws-in-directory-p docroot path)
+                           (if (f-dir? path)
+                               (ws-send-directory-list process (f-expand path docroot) "^[^\.]")
+                             (ws-send-file process (f-expand path docroot)))
+                         (ws-send-404 process)))))
+                 servant-port)))
+    (async-wait (process server)))
   (with-temp-file (servant-pid-file)
     (insert (format "%s" (emacs-pid)))))
 
